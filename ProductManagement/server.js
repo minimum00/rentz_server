@@ -20,4 +20,4 @@ app.get('/test',(req,res) =>{
     res.sendStatus(200)
 })
 
-app.listen(5000,() => console.log('server is on'))
+app.listen(5000,() => console.log('server is on 5000'))
