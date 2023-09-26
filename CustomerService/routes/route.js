@@ -1,11 +1,11 @@
 const router = require('express').Router()
 const {addItemToCart,getCartItem} = require('../controller/cartController.js')
-const {postsignup,postlogin} = require('../controller/accountController.js')
+const {postsignup,postlogin, ownerSignUp, UserLogOut, ResetPassword, DeleteCartItem} = require('../controller/accountController.js')
 const authMiddleware  = require('../middleware/authMiddeware.js')
-const ownerSignUp = require('../controller/ownerSignUp')
-const  UserLogOut  = require('../controller/logOut')
-const DeleteCartItem = require('../controller/deleteCartItem.js')
-const ResetPassword = require('../controller/resetPassword.js')
+
+
+
+
 const GoogleSignUp = require('../controller/googleProvider.js')
 
 
