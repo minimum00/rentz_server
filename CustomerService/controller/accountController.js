@@ -3,16 +3,18 @@ const {doc,getDoc,updateDoc,setDoc,collection,query,where} = require('firebase/f
 const {createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword} = require('firebase/auth') 
 
 // const userRef = collection(db,'users')
-
+const user = {}
 const postsignup = async(req,res) =>{
 
     const {username,email,password} = req.body
     const auth = getAuth()
+   
 
     try{
 
         await createUserWithEmailAndPassword(auth,email,password)
         .then(async (userCred) => {
+            user = userCred
             const userID = userCred.user.uid
             const userRef = doc(db,'users',`${userID}`)
             await setDoc(userRef,{
@@ -20,7 +22,7 @@ const postsignup = async(req,res) =>{
                 username:username,
                 cart:[]
             })
-            res.sendStatus(201)
+            res.Status(201).json
         })
         .catch((err) =>{
             console.log(err)
@@ -40,6 +42,7 @@ const postlogin = async(req,res)=>{
      await signInWithEmailAndPassword(auth,email,password)
      .then(async (userCred) =>{
         console.log('user logged in')
+        const user = userCred;
         const userID = userCred.user.uid
         const userRef = doc(db,'users',`${userID}`)
         const docSnap = await getDoc(userRef)
@@ -48,7 +51,7 @@ const postlogin = async(req,res)=>{
         auth.currentUser.getIdToken()
         .then((token) =>{
             res.cookie('jwt',token)
-            res.status(200).json({token:token,userData:userData.username})
+            res.status(200).json({token:token, userData:userData.username, user:user })
             console.log(token)
         })
      })
@@ -62,5 +65,6 @@ const postlogin = async(req,res)=>{
 
 module.exports = {
     postlogin,
-    postsignup
+    postsignup,
+    user
 }

@@ -5,6 +5,7 @@
 
 const {initializeApp} = require('firebase/app')
 const {getFirestore} = require('firebase/firestore')
+const { getAuth } = require('firebase/auth')
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -30,6 +31,7 @@ admin.initializeApp({
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app)
+const auth = getAuth(app);
 
-module.exports = {app,db}
+module.exports = {app,db, auth}
 // export const storage = getStorage(app)
