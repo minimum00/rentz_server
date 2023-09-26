@@ -1,13 +1,13 @@
-const {db} = require('../firebaseConfig.js')
+const {db, auth} = require('../firebaseConfig.js')
 const {doc,getDoc,updateDoc,setDoc,collection,query,where} = require('firebase/firestore')
-const {createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword} = require('firebase/auth') 
+const {createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, signOut} = require('firebase/auth') 
 
 // const userRef = collection(db,'users')
 const user = {}
 const postsignup = async(req,res) =>{
 
     const {username,email,password} = req.body
-    const auth = getAuth()
+   
    
 
     try{
@@ -62,9 +62,80 @@ const postlogin = async(req,res)=>{
    }
 
 }
+const UserLogOut = async(req, res) => {
+    try{
+    
+            const user = req.body
+            console.log('userObject is ', user)
+            res.clearCookie('jwt');
+           
+            await signOut(auth);
+      
+            return res.status(200).json({ message: 'User logged out successfully' });
+          
+      
+       
+    } catch(error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Something went wrong' });
+    }
+}
+
+const ownerSignUp = async(req, res) => {
+    const { email, password, name } = req.body;
+    const role = 'owner';
+    
+  try {
+
+    await createUserWithEmailAndPassword(auth, email, password).then(async (Cred) => {
+
+        const userId = Cred.user.uid;
+        console.log('user Id is', userId)
+        console.log('userCredentials are', Cred)
+    
+        const userDocRef = doc(db, 'users', `${userId}`)
+    
+         await setDoc(userDocRef, {
+          userID: userId,
+          role: role,
+          email:email,
+           username:name,
+           cart:[]
+         
+        });
+        return res.status(201).json({ message: 'User signed up successfully', userId: userId });
+    });
+
+    
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Something went wrong' });
+  }
+}
+
+const ResetPassword = async (req, res) => {
+    try {
+      const { email } = req.body;
+  
+    
+  
+      await sendPasswordResetEmail(auth, email);
+  
+      return res.status(200).json({ message: 'Password reset email sent successfully' });
+  
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Something went wrong' });
+  
+    }
+  };
+  
 
 module.exports = {
     postlogin,
     postsignup,
+    UserLogOut,
+    ownerSignUp,
+    ResetPassword,
     user
 }

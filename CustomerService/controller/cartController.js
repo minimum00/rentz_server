@@ -1,5 +1,5 @@
 const {db} = require('../firebaseConfig.js')
-const {doc,getDoc,updateDoc,setDoc} = require('firebase/firestore')
+const {doc,getDoc,updateDoc,setDoc, deleteField} = require('firebase/firestore')
 const crypto = require('crypto')
 
 const addItemToCart = async(req,res) =>{
@@ -39,9 +39,31 @@ const getCartItem = async(req,res) =>{
 
     res.status(200).send(data.cart)
 }
+const DeleteCartItem = async (req, res) => {
+
+    try{
+            const {userId, itemId} = req.body;
+            
+            
+            const docRef = doc(db, 'users', `${userId}`);
+            const updateData = {
+                [`cart.${itemId}`]: deleteField(),
+              };
+          
+              await updateDoc(docRef, updateData);
+          
+              return res.status(200).json({ message: 'Object deleted from cart successfully' });
+    
+        } catch(error) {
+            console.error(error);
+            return res.status(500).json({ error: 'Something went wrong' });
+    
+     }
+    }
 
 
 module.exports = {
     addItemToCart,
+    DeleteCartItem,
     getCartItem
 }

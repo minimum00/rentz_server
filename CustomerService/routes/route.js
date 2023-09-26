@@ -6,7 +6,8 @@ const ownerSignUp = require('../controller/ownerSignUp')
 const  UserLogOut  = require('../controller/logOut')
 const DeleteCartItem = require('../controller/deleteCartItem.js')
 const ResetPassword = require('../controller/resetPassword.js')
-const EmailVerification = require('../controller/emailVerification.js')
+const GoogleSignUp = require('../controller/googleProvider.js')
+
 
 
 router.post('/addItemToCart',authMiddleware,addItemToCart)
@@ -20,7 +21,8 @@ router.post('/logOut', UserLogOut);
 
 router.post('/deleteCartItem', DeleteCartItem);
 router.post('/resetPassword', ResetPassword)
+router.post('/googleSignUp', GoogleSignUp)
 
-router.post('/emailVerification', EmailVerification)
+
 
 module.exports = router
