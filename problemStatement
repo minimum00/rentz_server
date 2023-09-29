@@ -1,20 +1,107 @@
-//appending propertyImages
- for(let i = 0; i < len;i++){
-      data.append('propertyImages',array_containing_image[i])
-  }
-//appending roomImages
- for(let i = 0; i < len;i++){
-      data.append('roomImages',array_containing_image[i])
-  }
+//------------route folder code--------------------------//
+const cpUpload = upload.fields([{ name: 'propertyImage', maxCount: 4 }, { name: 'roomImage', maxCount: 8 }])
+const multer = require('multer')
+const upload = multer()
+router.post('/uploadFormData',cpUpload,uploadFormData)
+//------------------------------------------------------//
 
-//images segregation
-const cpUpload = upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'gallery', maxCount: 8 }])
-app.post('/cool-profile', cpUpload, function (req, res, next) {
-  // req.files is an object (String -> Array) where fieldname is the key, and the value is array of files
-  //
-  // e.g.
-  //  req.files['avatar'][0] -> File
-  //  req.files['gallery'] -> Array
-  //
-  // req.body will contain the text fields, if there were any
-})
+
+
+//-----------------------------------------------------//
+//--function to upload both propertyImage and roomImage--//
+
+//Notes to read before 
+//-needs optimization
+//-access token for images valid for ten years
+//-does not work for images > 1mb
+//-maybe upgrade plan to blaze plan or reduce/compress images to required size
+//-for images compression sharp package(work for later)
+
+//-YOUR JOB
+//-store data in firestore
+//Obtained url has been comented out in the coe below
+
+
+const admin = require('firebase-admin')
+
+const uploadFormData = async(req,res) =>{
+
+    const bucket = admin.storage().bucket('gs://testserverdatabase.appspot.com')
+
+    const {propertyImage,roomImage} = req.files
+    const fileName = propertyImage.originalname; // Name of the file
+    const mimetype = propertyImage.mimetype
+
+    const expirationDate = new Date();
+    expirationDate.setFullYear(expirationDate.getFullYear() + 10);
+    
+    try{
+        const savePropertyImage = propertyImage.map(async(item) =>{
+            
+            const mimetype = item.mimetype
+            const destination = `propertyImage/${item.originalname}`;
+            const file =  bucket.file(destination)
+
+            await file.save(item.buffer, {
+                metadata: {
+                  contentType: mimetype
+                },
+            });
+
+           
+            const [url] = await file.getSignedUrl({
+                action:'read',
+                expires:expirationDate
+            })
+
+            return {url}
+        })
+
+        Promise.all(savePropertyImage)
+        .then((propertyImageUrl) =>{
+            //url obtained for propertyImage
+            //store this into temporary array because we excute wire function to firebase later
+
+            console.log(propertyImageUrl)//debug line
+
+            //storing and creating roomImages and obtaining respective url's for final execution
+            //this part has to optimized maybe create custom modules for this function
+
+            const saveRoomImage = roomImage.map(async(item) =>{
+            
+                const mimetype = item.mimetype
+                const destination = `roomImage/${item.originalname}`;
+                const file =  bucket.file(destination)
+    
+                await file.save(item.buffer, {
+                    metadata: {
+                      contentType: mimetype
+                    },
+                });
+    
+                const [url] = await file.getSignedUrl({
+                    action:'read',
+                    expires:expirationDate
+                })
+    
+                return {url}
+            })
+
+            Promise.all(saveRoomImage)
+            .then((roomImageUrl) =>{
+                 //now obtained both proertyImage and roomImage urls
+                 //firestore write document code here
+                 //with data in req.body and both url's to respective array
+                console.log(roomImageUrl)
+            })
+            .catch((err) => console.log(err))
+        })
+        .catch((err) =>{
+            console.log(err)
+        })
+    }
+    catch{
+
+    }
+    res.sendStatus(200)
+}
