@@ -5,7 +5,8 @@
 
 const {initializeApp} = require('firebase/app')
 const {getFirestore} = require('firebase/firestore')
-const { getAuth } = require('firebase/auth')
+const {getStorage} = require('firebase/storage')
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -24,14 +25,16 @@ var admin = require("firebase-admin");
 var serviceAccount = require("./ServiceAccountKey.json");
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: 'gs://testserverdatabase.appspot.com'
+
 });
 
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app)
-const auth = getAuth(app);
+const storage = getStorage(app);
 
-module.exports = {app,db, auth}
+module.exports = {app,db, storage, admin}
 // export const storage = getStorage(app)

@@ -7,10 +7,10 @@ const addItemToCart = async(req,res) =>{
     const data = req.body
     const docRef = doc(db,'users',`${id}`)
     const random = crypto.randomBytes(8)
-    const reviewID = random.toString('hex') 
+  
 
     await setDoc(docRef,{
-        cart:{[reviewID]:{...data}}
+        cart:{[data.id]:{...data}}
     },{merge:true})
     .then(() => res.send(201))
 }
@@ -18,11 +18,11 @@ const addItemToCart = async(req,res) =>{
 const getCartItem = async(req,res) =>{
     const id= res.locals.id
     const docRef = doc(db,'users',`${id}`)
-
+    const { specific } = req.query;
     const docSnap = await getDoc(docRef)
     const data = docSnap.data()
 
-    const keys = Object.keys(data.cart)
+    // const keys = Object.keys(data.cart)
 
     // keys.map(element => {
     //     // element.map(([item,value]) => console.log(value))
@@ -32,22 +32,33 @@ const getCartItem = async(req,res) =>{
     // data.cart.forEach(element => {
     //     console.log(element)
     // });
-    for (const value of Object.values(data.cart)) {
-        console.log(`${value.userID}`);
-      }
+    // for (const value of Object.values(data.cart)) {
+    //     console.log(`${value.userID}`);
+    //   }
       
+    if(specific !== undefined){
+        const allId = [];
+        for(const value of Object.values(data.cart)) {
+            allId.push(value.id);
+            console.log(allId);
+        }
+        res.status(200).send(data.cart)
+    } else {
+        res.status(200).send(data.cart);
+    }
 
-    res.status(200).send(data.cart)
 }
 const DeleteCartItem = async (req, res) => {
 
     try{
-            const {userId, itemId} = req.body;
-            
+            const userId = res.locals.id
+            const { propertyID } = req.query
+            console.log('userId', userId)
+            console.log('propertyId', propertyID)
             
             const docRef = doc(db, 'users', `${userId}`);
             const updateData = {
-                [`cart.${itemId}`]: deleteField(),
+                [`cart.${propertyID}`]: deleteField(),
               };
           
               await updateDoc(docRef, updateData);

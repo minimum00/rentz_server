@@ -10,6 +10,7 @@ const authMiddleware = async(req,res,next) =>{
             // console.log(decodedToken.user_id)
             res.locals.id = decodedToken.user_id
             console.log(res.locals.id)
+           
             next()
         })
         .catch((err) => {

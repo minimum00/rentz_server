@@ -5,8 +5,7 @@ const { signOut } = require('firebase/auth')
 const UserLogOut = async(req, res) => {
     try{
     
-            const user = req.body
-            console.log('userObject is ', user)
+          
             res.clearCookie('jwt');
            
             await signOut(auth);

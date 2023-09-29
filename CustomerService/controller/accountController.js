@@ -1,7 +1,7 @@
-const {db, auth} = require('../firebaseConfig.js')
+const {db, app} = require('../firebaseConfig')
 const {doc,getDoc,updateDoc,setDoc,collection,query,where} = require('firebase/firestore')
-const {createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, signOut} = require('firebase/auth') 
-
+const {createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, getAuth} = require('firebase/auth') 
+const auth = getAuth(app);
 // const userRef = collection(db,'users')
 const user = {}
 const postsignup = async(req,res) =>{
@@ -65,9 +65,7 @@ const postlogin = async(req,res)=>{
 const UserLogOut = async(req, res) => {
     try{
     
-            const user = req.body
-            console.log('userObject is ', user)
-            res.clearCookie('jwt');
+          
            
             await signOut(auth);
       

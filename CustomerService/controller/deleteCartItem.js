@@ -1,4 +1,5 @@
 const {db} = require('../firebaseConfig.js')
+const {userId} = require('../middleware/authMiddeware.js');
 const {doc, deleteField, updateDoc } = require('firebase/firestore');
 
 //userId and itemId to be sent from the delete button in the client
@@ -6,7 +7,7 @@ const {doc, deleteField, updateDoc } = require('firebase/firestore');
 const DeleteCartItem = async (req, res) => {
 
 try{
-        const {userId, itemId} = req.body;
+        const itemId = req.params.propertyID;
         
         
         const docRef = doc(db, 'users', `${userId}`);
