@@ -1,1 +1,8 @@
-
+//appending propertyImages
+ for(let i = 0; i < len;i++){
+      data.append('propertyImages',array_containing_image[i])
+  }
+//appending roomImages
+ for(let i = 0; i < len;i++){
+      data.append('roomImages',array_containing_image[i])
+  }
