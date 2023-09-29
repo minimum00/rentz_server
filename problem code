@@ -1,0 +1,226 @@
+front end, propertyDataCollection 
+ // Needs Research for futher development
+
+
+
+import React, { useEffect } from 'react'
+import Navbar from '../components/Navbar'
+import { TextField,Button } from '@mui/material'
+import { styled } from '@mui/material/styles';
+import {FcImageFile} from 'react-icons/fc'
+import Box from '@mui/material/Box';
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
+import StepContent from '@mui/material/StepContent';
+// import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import PropertyDataMain from '../components/DataCollection/PropertyDataMain';
+import RoomDataCollection from '../components/DataCollection/RoomDataCollection';
+import ExtraAnemeties from '../components/DataCollection/ExtraAnemeties';
+import axios from 'axios';
+
+import { useDataContext } from '../contexts/dataProvider';
+
+const VisuallyHiddenInput = styled('input')`
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  white-space: nowrap;
+  width: 1px;
+`;
+const userId = 'testUser';
+
+const PropertyDataCollection = () => {
+
+ 
+  const {formData} = useDataContext()
+  const { 
+    propertyName,
+    location,
+    propertyImage,
+    propertyInfo } = formData
+
+    // const allocation = () => {
+    //   const Data = new FormData(); 
+    
+    //   Data.append("userId", userId); 
+    //   Data.append("propertyName", propertyName);
+    //   Data.append("location", location);
+    //   Data.append("propertyInfo", propertyInfo);
+    
+    //   // Append image files to FormData.
+    //   for (let i = 0; i < propertyImage.length; i++) {
+    //     Data.append(`propertyImage-${i}`, propertyImage[i]);
+    //   }
+    
+    //   console.log('data after getting inside formData', Data);
+    //   return Data;
+    // }
+
+    console.log('form data pulled from context', formData)
+      const steps = [
+          {
+            label: 'About Property',
+            description: <PropertyDataMain/>
+          },
+          {
+            label: 'Room Details',
+            description:
+              <RoomDataCollection/>,
+          },
+          {
+            label: 'Extra Feature',
+            description:<ExtraAnemeties/>
+          },
+        ];
+    const [activeStep, setActiveStep] = React.useState(0);
+    
+    const handleNext = () => {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+
+      if(activeStep === 2){
+        console.log('make api call line number 57')
+      }
+
+    };
+    
+    const handleBack = () => {
+      setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    };
+    
+    const handleReset = () => {
+      setActiveStep(0);
+    };
+   
+
+    const testing = async () => {
+      try {
+        const formData = new FormData(); 
+        // Send FormData to the server.
+        for (let i = 0; i < propertyImage.length; i++) {
+          formData.append('propertyImage', propertyImage[i]);
+        }
+      
+          console.log('data:', formData);
+          await axios.post('http://localhost:5002/customer/formDataSubmit', formData, {
+          headers: {
+            'Content-Type':  'multipart/form-data',
+          },
+        });
+    
+      } catch (error) {
+        console.log(error);
+      }
+      
+    };
+  return (
+    <div>
+        <div>
+            <Navbar/>
+        </div>
+
+        <div className='flex flex-col items-center gap-10'>
+
+            <h1 className='text-4xl font-serif mt-10 text-myBlack'>Enter Details to let your property Stand Out</h1>
+
+
+            <Box sx={{ maxWidth: 800 }}>
+                <Stepper activeStep={activeStep} orientation="vertical">
+                {steps.map((step, index) => (
+                    <Step key={step.label}>
+                    <StepLabel
+                        optional={
+                        index === 2 ? (
+                            <Typography variant="caption">Last step</Typography>
+                        ) : null
+                        }
+                    >
+                        {step.label}
+                    </StepLabel>
+                    <StepContent>
+                        <Typography>{step.description}</Typography>
+                        <Box sx={{ mb: 2 }}>
+                        <div>
+                            <Button
+                            variant="contained"
+                            onClick={handleNext}
+                            sx={{ mt: 1, mr: 1 }}
+                            >
+                            {index === steps.length - 1 ? 'Finish' : 'Continue'}
+                            </Button>
+                            <button type='button' onClick={testing} > submit test </button>
+                            <Button
+                            disabled={index === 0}
+                            onClick={handleBack}
+                            sx={{ mt: 1, mr: 1 }}
+                            >
+                            Back
+                            </Button>
+                        </div>
+                        </Box>
+                    </StepContent>
+                    </Step>
+                ))}
+                </Stepper>
+                {activeStep === steps.length && (
+                <Paper square elevation={0} sx={{ p: 3 }}>
+                    <Typography>All steps completed - you&apos;re finished</Typography>
+                    <Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
+                    Reset
+                    </Button>
+                </Paper>
+                )}
+            </Box>
+        </div>
+    </div>
+  )
+}
+
+export default PropertyDataCollection
+
+
+server js
+
+const {db, storage} = require('../firebaseConfig');
+const { setDoc, doc } = require('firebase/firestore')
+const {ref, uploadBytes, getDownloadURL} = require('firebase/storage');
+//userId is there just for testing it'll originally be pulled from authMiddleware
+const DataSubmit = async (req, res) => {
+  try{
+   
+    // ...
+    const propertyImages = req.files;
+    console.log('propoerty images are',propertyImages)
+    // ...
+//         const imageUrls = [];
+//         for (room of propertyImage)  {
+//             const storageRef = ref(storage, `${userId}`, `${room.name}`);
+//             await uploadBytes(storageRef, room)
+//             const url = await getDownloadURL(storageRef);
+//             imageUrls.push(url);
+//  }
+
+//         const docRef = doc(db, 'Rooms', `${userId}`);
+//         await setDoc(docRef, {
+//             propertyName,
+//             location,
+//             imageUrls,
+//             propertyInfo
+            
+           
+//         })
+        res.status(201).send(console.log('documentCreation is a success'))
+
+
+    }catch (error) {
+        console.log(error);
+        res.status(500).send(console.log('error occured: ', error));
+    }
+}
+module.exports = DataSubmit;
