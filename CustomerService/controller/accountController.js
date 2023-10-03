@@ -1,13 +1,23 @@
-const {db} = require('../firebaseConfig.js')
+const {db,storage} = require('../firebaseConfig.js')
 const {doc,getDoc,updateDoc,setDoc,collection,query,where} = require('firebase/firestore')
-const {createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword} = require('firebase/auth') 
 
-// const userRef = collection(db,'users')
+const   {
+        createUserWithEmailAndPassword,
+        getAuth,
+        signInWithEmailAndPassword,
+        signOut
+        } 
+        = require('firebase/auth') 
+
+const auth = getAuth()
+const admin = require('firebase-admin')
+
+
+
 
 const postsignup = async(req,res) =>{
 
     const {username,email,password} = req.body
-    const auth = getAuth()
 
     try{
 
@@ -60,7 +70,43 @@ const postlogin = async(req,res)=>{
 
 }
 
+const UserLogOut = async(req, res) => {
+    try{
+            res.clearCookie('jwt');
+           
+            await signOut(auth);
+      
+            return res.status(200).json({ message: 'User logged out successfully' });
+          
+      
+       
+    } catch(error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Something went wrong' });
+    }
+}
+
+const getUserDetail = async(req,res) =>{
+    const {id} = req.query
+    const userRef = doc(db,'users',`${id}`)
+   try{
+        await getDoc(userRef)
+        .then((userInfo) =>{
+            console.log(userInfo.data())
+            const username = userInfo.data().username
+            res.status(200).json({username:username})
+        })
+        .catch(err => console.log(err))
+    }
+    catch(err){
+        console.log(err)
+    }
+}
+
+
 module.exports = {
     postlogin,
-    postsignup
+    postsignup,
+    UserLogOut,
+    getUserDetail
 }

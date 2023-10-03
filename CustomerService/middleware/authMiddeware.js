@@ -2,7 +2,7 @@ const {getAuth} = require('firebase-admin/auth')
 
 const authMiddleware = async(req,res,next) =>{
     const token = req.cookies.jwt
-    console.log(req.cookies)
+    console.log(token)
     if(token){
         getAuth()
         .verifyIdToken(token)
